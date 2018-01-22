@@ -143,8 +143,13 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 	# Now remove the patterns saved above.
 	lc_names <- lapply(lc_names, gsub, patt= patterns, rep="")
 
+	# Save the SG Referer (URL) and Device field
+	lc_names <- lapply(lc_names, gsub, patt="^variableREFERER$", rep="rsp_referer")
+	lc_names <- lapply(lc_names, gsub, patt="^variableDEVICE$", rep="rsp_device")
+
 	# Save the SG geography variables derived from respondent IP
 	if(keep_geo_vars) {
+		lc_names <- lapply(lc_names, gsub, patt="^variableIP$",         rep="rsp_ip")
 		lc_names <- lapply(lc_names, gsub, patt="^variableLONG$",       rep="rsp_lng")
 		lc_names <- lapply(lc_names, gsub, patt="^variableLAT$",        rep="rsp_lat")
 		lc_names <- lapply(lc_names, gsub, patt="^variableGEOCOUNTRY$", rep="rsp_cntry")
@@ -186,8 +191,7 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 												   ignore.case=TRUE)]
 
 	# Other variables to drop per the "clean" parameter (V4 API)
-	otherdrops <- paste0("contactid|istestdata|sessionid|",
-						 "language|ilinkid|sresponsecomment")
+	otherdrops <- paste0("^(contactid|istestdata|language|ilinkid|sresponsecomment)$")
 
 	if(clean) set <- set[, -grep(otherdrops, names(set), ignore.case=TRUE)]
 	if(clean) set <- as.data.frame(lapply(set, type.convert, na.strings = "", as.is=TRUE))
