@@ -108,7 +108,21 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 	close(progb)
 
 	# Drop instructional messages and subset the frame, keeping shortname and id.
-	lc_qs <- lc_qs[lc_qs$`_type` !="SurveyDecorative", c('id', 'shortname')]
+	lc_qs <- lc_qs[lc_qs$`_type` !="SurveyDecorative", c('id', 'shortname', 'options')]
+	lc_qs$id <- as.character(lc_qs$id)
+
+	# Get question options for multiple choice columns and append as rows to qs data frame
+	for (i in 1:nrow(lc_qs)) {
+		lc_qs_sel <- as.data.frame(lc_qs[i,]$options)
+		if (nrow(lc_qs_sel) > 0) {
+			lc_qs_sel$id <- paste0(lc_qs[i,]$id, "option", lc_qs_sel$id)
+			lc_qs_sel$shortname <- lc_qs_sel$title$English
+			lc_qs_sel$options <- NA
+			lc_qs_sel <- lc_qs_sel[, c('id', 'shortname', 'options')]
+			lc_qs <- rbind(lc_qs, lc_qs_sel)
+		}
+	}
+	lc_qs <- lc_qs[, c('id', 'shortname')]
 
 	# Retrieve the response data with the "/surveyresponse/" call
 	message("\n  Retrieving survey response data:")
