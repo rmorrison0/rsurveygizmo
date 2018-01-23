@@ -112,7 +112,7 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 
 	# Retrieve the response data with the "/surveyresponse/" call
 	message("\n  Retrieving survey response data:")
-	progb <- txtProgressBar(min = 0, max = length(lc_respnum), style = 3)
+	progb <- txtProgressBar(min = 0, max = lc_respnum, style = 3)
 	for(i in 1:lc_respnum){
 		sg_return_url  <- paste0(lc_furl, i)
 		sg_return_data <- fromJSON(txt=sg_return_url)
