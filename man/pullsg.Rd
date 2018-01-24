@@ -4,15 +4,17 @@
 \alias{pullsg}
 \title{Download survey response data from Survey Gizmo, storing an R dataframe.}
 \usage{
-pullsg(surveyid, api, completes_only = TRUE, verbose = TRUE,
-  var_name_append = TRUE, mergecampaign = FALSE, delete_sys_vars = FALSE,
-  keep_geo_vars = TRUE, clean = FALSE, reset_row_names = TRUE,
-  small = FALSE)
+pullsg(surveyid, api, start_date = NA, completes_only = TRUE,
+  verbose = TRUE, var_name_append = TRUE, mergecampaign = FALSE,
+  delete_sys_vars = FALSE, keep_geo_vars = TRUE, clean = FALSE,
+  reset_row_names = TRUE, small = FALSE)
 }
 \arguments{
 \item{surveyid}{The survey's unique SG ID number (in V4 of the API, the portion of the \href{https://apihelp.surveygizmo.com/help/article/link/surveyresponse-sub-object}{surveyresponse} call URL which follows "id/", e.g.: "...build/id/1234567"}
 
 \item{api}{The user's private API key for Survey Gizmo}
+
+\item{start_date}{(optional) Start date for the report (format "YYYY-MM-DD")}
 
 \item{completes_only}{When true (the Default), survey responses with a status of
 "Complete" are saved. Responses with a status of "disqualified", "partial", etc.
@@ -61,4 +63,3 @@ it calculates the number of pulls needed to download the entire response set and
 To ensure that variable names are interpretable in the returned data frame, it is strongly recommended
 that users first assign question \href{https://help.surveygizmo.com/help/article/link/using-question-aliases}{aliases} to each question prior to utilizing this function.
 }
-

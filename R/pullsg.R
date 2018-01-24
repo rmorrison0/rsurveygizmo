@@ -11,6 +11,7 @@
 #' @param verbose When true (the default), download progress is printed to standard output.
 #' @param mergecampaign When true, contact emails are downloaded from the SG "contact" object and merged with the survey responses. Note: this parameter should \emph{only} be used with survey projects that have an active email campaign.
 #' @param small Only merge email address when mergecampaign is true.
+#' @param start_date (optional) Start date for the report (format "YYYY-MM-DD")
 #' @param completes_only When true (the Default), survey responses with a status of
 #' "Complete" are saved. Responses with a status of "disqualified", "partial", etc.
 #' are deleted (see \href{https://apihelp.surveygizmo.com/help/article/link/surveyresponse-returned-fields}{this link} for documentation)
@@ -44,7 +45,7 @@
 #' @export
 
 
-pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_append=TRUE, mergecampaign=FALSE, delete_sys_vars=FALSE, keep_geo_vars=TRUE, clean=FALSE, reset_row_names=TRUE, small=FALSE) {
+pullsg <- function(surveyid, api, start_date=NA, completes_only=TRUE, verbose=TRUE, var_name_append=TRUE, mergecampaign=FALSE, delete_sys_vars=FALSE, keep_geo_vars=TRUE, clean=FALSE, reset_row_names=TRUE, small=FALSE) {
 
 	options(stringsAsFactors=FALSE)
 	if(small & mergecampaign==FALSE) warning('\nThe "small" parameter should be false when "mergecampaign" is false. This parameter was ignored.')
@@ -57,12 +58,14 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 	results  <- "&resultsperpage=100"
 
 	#Build local parameters
-	filturl  <- paste0("&filter[field][0]=status&filter[operator][0]==",
-					   "&filter[value][0]=Complete")
-	if (completes_only) {
-		filt = filturl
-	} else {
-		filt <- ""
+	filt <- ""
+	if (!is.na(start_date)) {
+		filt <- paste0("&filter[field][0]=datesubmitted&filter[operator][0]=>=&filter[value][0]=", start_date)
+		if (completes_only) {
+			filt <- paste0(filt, "&filter[field][1]=status&filter[operator][1]==&filter[value][1]=Complete")
+		}
+	} else if (completes_only) {
+		filt <- paste0("&filter[field][0]=status&filter[operator][0]==&filter[value][0]=Complete")
 	}
 
 	lc_base  <- paste0(url, surveyid, response, token, filt)
@@ -76,6 +79,9 @@ pullsg <- function(surveyid, api, completes_only=TRUE, verbose=TRUE, var_name_ap
 	# Get base response parameters of the survey and extract N
 	lc_base      <- fromJSON(txt=lc_base)
 	lc_resp_cnt  <- as.integer(lc_base[['total_count']])
+	if (lc_resp_cnt == 0) {
+		stop("No survey responses returned.")
+	}
 	setTxtProgressBar(progb, 2)
 
 	# Calculate page number (starting with 1) based on 100 responses per call

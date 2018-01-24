@@ -29,4 +29,3 @@ the returned email/response data as an R \code{\link{data.frame}}. Because SG li
 it calculates the number of pulls needed to download the entire response set and binds the returned frames. The "contactid" field joins email address and other campaign data with the survey response objects (see \code{\link{pullsg}}).
 Note that this function only downloads contact object data that is accessible through the API, specifically, contact objects associated with the subtype "email" where status is "Active."
 }
-
